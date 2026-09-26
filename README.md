@@ -102,6 +102,7 @@ rm -rf ~/.config/omarchy/nanoleaf   # paired devices, tokens and profiles
 | `ConfigStore.js` | Config normalization and serialization |
 | `Profiles.js` | Profile capture, matching and normalization |
 | `I18n.js` | English and German UI strings |
+| `Pending.js` | Keeps optimistic switch states from being undone by stale reads |
 | `Panel.qml` | Bar icon and popup |
 | `tools/fake-nanoleaf.py` | Simulated Nanoleaf device for testing without hardware |
 | `tests/` | Unit tests, fake-device test, QML lint, manifest check |
@@ -121,7 +122,7 @@ results:
   state, modes, profiles, config, translations, the HTTP layer against a
   scripted `XMLHttpRequest`) plus an end-to-end test of the simulated device.
 - **Coverage:** line coverage of the JavaScript modules (`NanoleafApi.js`,
-  `Profiles.js`, `ConfigStore.js`, `I18n.js`). CI fails below 95 % lines,
+  `Profiles.js`, `ConfigStore.js`, `I18n.js`, `Pending.js`). CI fails below 95 % lines,
   95 % functions or 80 % branches. The QML files are covered by the QML lint,
   not by the coverage number.
 - **QML lint:** `qmllint` on the QML files, failing on real defects such as a

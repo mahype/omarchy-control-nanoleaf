@@ -4,6 +4,7 @@ import Quickshell.Io
 import "NanoleafApi.js" as Api
 import "ConfigStore.js" as ConfigStore
 import "Profiles.js" as Profiles
+import "Pending.js" as Pending
 
 // Owner of all Nanoleaf state.
 //
@@ -27,6 +28,10 @@ QtObject {
   // that read nested fields re-evaluate.
   property var states: ({})
   property int revision: 0
+
+  // Optimistic values of commands in flight; see Pending.js. Not bound by
+  // the UI, only merged into `states`.
+  property var pending: ({})
 
   // Discovery results that are not paired yet: [{ id, name, host, port, model }]
   property var discovered: []
@@ -91,7 +96,9 @@ QtObject {
     var d = deviceById(id)
     if (!d) return
     Api.fetchInfo(d, function(ok, status, body) {
-      var info = ok ? Api.parseInfo(body) : null
+      var now = Date.now()
+      root.pending = Pending.prune(root.pending, now)
+      var info = Pending.apply(root.pending, id, ok ? Api.parseInfo(body) : null, now)
       root._putState(id, { reachable: !!info, info: info })
     })
   }
@@ -100,7 +107,7 @@ QtObject {
     var d = deviceById(id)
     if (!d) return
     _patchInfo(id, { on: !!on })
-    Api.setOn(d, on, function(ok) { if (!ok) root.refreshDevice(id) })
+    Api.setOn(d, on, _done(id))
   }
 
   function toggle(id) {
@@ -113,7 +120,7 @@ QtObject {
     if (!d) return
     var v = Api.clamp(Math.round(value), 0, 100)
     _patchInfo(id, { brightness: v, on: v > 0 })
-    Api.setBrightness(d, v, function(ok) { if (!ok) root.refreshDevice(id) })
+    Api.setBrightness(d, v, _done(id))
   }
 
   // Effect, color and white are mutually exclusive on the device; each call
@@ -122,21 +129,21 @@ QtObject {
     var d = deviceById(id)
     if (!d) return
     _patchInfo(id, { effect: name, colorMode: "effect", on: true })
-    Api.selectEffect(d, name, function(ok) { if (!ok) root.refreshDevice(id) })
+    Api.selectEffect(d, name, _done(id))
   }
 
   function setColor(id, hue, sat) {
     var d = deviceById(id)
     if (!d) return
     _patchInfo(id, { hue: hue, sat: sat, colorMode: "hs", effect: "*Solid*", on: true })
-    Api.setColor(d, hue, sat, function(ok) { if (!ok) root.refreshDevice(id) })
+    Api.setColor(d, hue, sat, _done(id))
   }
 
   function setWhite(id, ct) {
     var d = deviceById(id)
     if (!d) return
     _patchInfo(id, { ct: ct, colorMode: "ct", effect: "*Solid*", on: true })
-    Api.setWhite(d, ct, function(ok) { if (!ok) root.refreshDevice(id) })
+    Api.setWhite(d, ct, _done(id))
   }
 
   function modeFor(id) {
@@ -220,14 +227,23 @@ QtObject {
 
   function _applyEffectState(d, devId, want) {
     _patchInfo(devId, { on: true, brightness: want.brightness, effect: want.effect, colorMode: "effect" })
+    // One pending entry covers both requests; only the last one finishes it.
     Api.selectEffect(d, want.effect, function(ok) {
-      if (!ok) { root.refreshDevice(devId); return }
-      root._sendState(d, devId, { brightness: { value: want.brightness, duration: 0 } })
+      if (!ok) { root._done(devId)(false); return }
+      Api.setState(d, { brightness: { value: want.brightness, duration: 0 } }, root._done(devId))
     })
   }
 
   function _sendState(d, devId, body) {
-    Api.setState(d, body, function(ok) { if (!ok) root.refreshDevice(devId) })
+    Api.setState(d, body, _done(devId))
+  }
+
+  // Completion callback for a command started via _patchInfo.
+  function _done(id) {
+    return function(ok) {
+      root.pending = Pending.finish(root.pending, id, ok, Date.now())
+      if (!ok) root.refreshDevice(id)
+    }
   }
 
   function _currentFor(id) {
@@ -311,20 +327,29 @@ QtObject {
   }
 
   function _patchInfo(id, patch) {
+    pending = Pending.begin(pending, id, patch)
     var s = states[id]
     if (!s || !s.info) return
     _putState(id, { reachable: s.reachable, info: Object.assign({}, s.info, patch) })
   }
 
+  // The file is read at startup and again after the directory exists, and the
+  // watcher reports our own writes; identical text is not re-applied, so a
+  // single change triggers a single refresh.
+  property string appliedConfigText: ""
+
   function _applyConfigText(text) {
-    config = ConfigStore.parse(text)
     configLoaded = true
+    if (text === appliedConfigText) return
+    appliedConfigText = text
+    config = ConfigStore.parse(text)
     refresh()
   }
 
   function _saveConfig(next) {
     config = next
-    configFile.setText(ConfigStore.serialize(next))
+    appliedConfigText = ConfigStore.serialize(next)
+    configFile.setText(appliedConfigText)
   }
 
   function _applyDiscovery(text) {

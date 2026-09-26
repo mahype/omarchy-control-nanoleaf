@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.mahype.omarchy-light-control-nanoleafs",
   "name": "Omarchy Light Control for Nanoleafs",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Sven Wagener",
   "license": "MIT",
   "homepage": "https://github.com/mahype/omarchy-light-control-nanoleafs",
