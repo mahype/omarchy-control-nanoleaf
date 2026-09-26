@@ -7,7 +7,7 @@ so it shows up in the panel's discovery like a real device.
 
 Usage:
   tools/fake-nanoleaf.py                       # "Test Lines" on port 16030
-  tools/fake-nanoleaf.py --name "Büro Lines" --port 16031 --id FA:KE:00:00:00:02
+  tools/fake-nanoleaf.py --name "Office Lines" --port 16031 --id FA:KE:00:00:00:02
 
 State lives in memory only. Stop with Ctrl+C. The server listens on all
 interfaces because mDNS announces the machine's LAN address; it controls
