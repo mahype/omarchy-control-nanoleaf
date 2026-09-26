@@ -18,12 +18,12 @@ account.
 - **Bar icon:** a hexagon tile, filled while any light is on. Left click opens
   the panel, right click toggles all lights, and scrolling changes the
   brightness of all lights that are on.
-- **Per device:** on/off, brightness and "Gerät blinken lassen" (identify).
-  Each device has three modes, and only one is active at a time:
-  - **Szene:** the scenes stored on the device (created in the Nanoleaf app)
-  - **Farbe:** color presets plus hue and saturation sliders
-  - **Weiß:** white tone from warm to cold
-- **Profiles:** "Als Profil speichern" saves the current state of the devices
+- **Per device:** on/off, brightness and "Flash device" (identify). Each
+  device has three modes, and only one is active at a time:
+  - **Scene:** the scenes stored on the device (created in the Nanoleaf app)
+  - **Color:** color presets plus hue and saturation sliders
+  - **White:** white tone from warm to cool
+- **Profiles:** "Save as profile" saves the current state of the devices
   you select, so rooms can have their own profiles. Profiles show up as buttons
   at the top, and the active one is highlighted. Right click a profile to
   delete it. Saving under an existing name overwrites it.
@@ -32,11 +32,13 @@ account.
 - **Lean UI:** only the essentials are visible; per-device controls fold out
   on click.
 
-The UI is in German and uses the Nanoleaf app's wording.
+- **English and German:** the UI follows the system language and uses the
+  Nanoleaf app's wording. You can also pick the language in the widget
+  settings.
 
-| Szene | Farbe | Weiß |
+| Scene | Color | White |
 |---|---|---|
-| ![Szene](docs/screenshots/scene.png) | ![Farbe](docs/screenshots/color.png) | ![Weiß](docs/screenshots/white.png) |
+| ![Scene](docs/screenshots/scene.png) | ![Color](docs/screenshots/color.png) | ![White](docs/screenshots/white.png) |
 
 ## Supported devices
 
@@ -64,7 +66,7 @@ Then pair your device:
 1. Click the hexagon in the bar and then `+` to search the network.
 2. Hold the power button on the Nanoleaf controller for 5–7 seconds until the
    LEDs flash.
-3. Within 30 seconds, click "Koppeln" next to the device.
+3. Within 30 seconds, click "Pair" next to the device.
 
 To update later, run `omarchy plugin update io.github.mahype.omarchy-light-control-nanoleafs`.
 
@@ -95,6 +97,7 @@ rm -rf ~/.config/omarchy/nanoleaf   # paired devices, tokens and profiles
 | `NanoleafApi.js` | Nanoleaf Open API requests and response parsing |
 | `ConfigStore.js` | Config normalization and serialization |
 | `Profiles.js` | Profile capture, matching and normalization |
+| `I18n.js` | English and German UI strings |
 | `Panel.qml` | Bar icon and popup |
 | `tools/fake-nanoleaf.py` | Simulated Nanoleaf device for testing without hardware |
 | `tests/` | Unit tests, fake-device test and manifest check |
@@ -123,7 +126,7 @@ show up in the panel's discovery and pair without a button press:
 
 ```bash
 tools/fake-nanoleaf.py --name "Test Lines"
-tools/fake-nanoleaf.py --name "Büro Canvas" --port 16031 --id FA:KE:00:00:00:02
+tools/fake-nanoleaf.py --name "Office Canvas" --port 16031 --id FA:KE:00:00:00:02
 ```
 
 ## Roadmap

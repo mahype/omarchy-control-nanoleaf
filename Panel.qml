@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs.Commons
 import qs.Ui
+import "I18n.js" as I18n
 
 // Bar icon + popup. Holds no device state of its own — everything comes from
 // the service; this file only decides what to show and forwards actions.
@@ -13,6 +14,11 @@ Panel {
   id: root
   moduleName: "io.github.mahype.omarchy-light-control-nanoleafs"
   ipcTarget: "nanoleaf"
+
+  // UI language: widget setting "language" (Auto | English | Deutsch); Auto
+  // follows the system locale.
+  readonly property string lang: I18n.resolve(setting("language", "Auto"), Qt.locale().name)
+  function tr(key, arg) { return I18n.t(lang, key, arg) }
 
   readonly property var nl: bar && bar.shell ? bar.shell.serviceFor("io.github.mahype.omarchy-light-control-nanoleafs") : null
   readonly property bool ready: nl !== null
@@ -91,9 +97,9 @@ Panel {
   ]
 
   function tooltip() {
-    if (!ready) return "Nanoleaf: Dienst nicht verfügbar"
-    if (!nl.hasDevices) return "Nanoleaf: kein Gerät gekoppelt"
-    return nl.anyOn ? "Nanoleaf: an, " + nl.averageBrightness + " %" : "Nanoleaf: aus"
+    if (!ready) return tr("serviceUnavailable")
+    if (!nl.hasDevices) return tr("noDevice")
+    return nl.anyOn ? tr("tooltipOn", nl.averageBrightness) : tr("tooltipOff")
   }
 
   onOpenedChanged: {
@@ -101,7 +107,7 @@ Panel {
       expandedId = ""
       savingProfile = false
       confirmDeleteId = ""
-      if (ready) nl.profileError = ""
+      if (ready) nl.missingScenes = []
       return
     }
     if (!ready) return
@@ -178,7 +184,7 @@ Panel {
 
             PanelActionButton {
               iconText: root.iconAdd
-              tooltipText: "Geräte suchen"
+              tooltipText: root.tr("searchDevices")
               foreground: root.bar.foreground
               fontFamily: root.bar.fontFamily
               anchors.verticalCenter: parent.verticalCenter
@@ -238,7 +244,7 @@ Panel {
             implicitHeight: deleteBtn.implicitHeight
 
             HintText {
-              text: "Profil „" + root.profileName(root.confirmDeleteId) + "“ löschen?"
+              text: root.tr("deleteProfileQuestion", root.profileName(root.confirmDeleteId))
               opacity: 1
               anchors.left: parent.left
               anchors.right: deleteRow.left
@@ -254,7 +260,7 @@ Panel {
 
               Button {
                 id: deleteBtn
-                text: "Löschen"
+                text: root.tr("delete")
                 foreground: root.bar.foreground
                 fontFamily: root.bar.fontFamily
                 fontSize: Style.font.bodySmall
@@ -266,7 +272,7 @@ Panel {
               }
 
               Button {
-                text: "Abbrechen"
+                text: root.tr("cancel")
                 foreground: root.bar.foreground
                 fontFamily: root.bar.fontFamily
                 fontSize: Style.font.bodySmall
@@ -276,8 +282,8 @@ Panel {
           }
 
           HintText {
-            visible: root.ready && root.nl.profileError !== ""
-            text: root.ready ? root.nl.profileError : ""
+            visible: root.ready && root.nl.missingScenes.length > 0
+            text: root.ready ? root.tr("sceneMissing", root.nl.missingScenes.join(", ")) : ""
             opacity: 1
           }
         }
@@ -317,7 +323,7 @@ Panel {
 
           Button {
             visible: !root.savingProfile
-            text: "Als Profil speichern"
+            text: root.tr("saveAsProfile")
             foreground: root.bar.foreground
             fontFamily: root.bar.fontFamily
             fontSize: Style.font.bodySmall
@@ -335,7 +341,7 @@ Panel {
               anchors.right: saveBtn.left
               anchors.rightMargin: Style.space(6)
               anchors.verticalCenter: parent.verticalCenter
-              placeholderText: "Name des Profils"
+              placeholderText: root.tr("profileName")
               font.family: root.bar.fontFamily
               font.pixelSize: Style.font.bodySmall
               foreground: root.bar.foreground
@@ -353,7 +359,7 @@ Panel {
               id: saveBtn
               anchors.right: parent.right
               anchors.verticalCenter: parent.verticalCenter
-              text: "Speichern"
+              text: root.tr("save")
               foreground: root.bar.foreground
               fontFamily: root.bar.fontFamily
               fontSize: Style.font.bodySmall
@@ -416,7 +422,7 @@ Panel {
 
           HintText {
             visible: root.savingProfile && root.ready && root.nl.profileByName(nameField.text) !== null
-            text: "Überschreibt das bestehende Profil."
+            text: root.tr("overwritesProfile")
           }
         }
 
@@ -429,24 +435,24 @@ Panel {
           PanelSeparator { visible: root.devices.length > 0; foreground: root.bar.foreground }
 
           PanelSectionHeader {
-            text: "NEUE GERÄTE"
+            text: root.tr("newDevices")
             foreground: root.bar.foreground
             fontFamily: root.bar.fontFamily
           }
 
           HintText {
             visible: root.ready && root.nl.discovering
-            text: "Suche im Netzwerk …"
+            text: root.tr("searching")
           }
 
           HintText {
             visible: root.ready && !root.nl.discovering && root.nl.discovered.length === 0
-            text: "Keine neuen Geräte gefunden."
+            text: root.tr("noNewDevices")
           }
 
           HintText {
             visible: root.ready && root.nl.discovered.length > 0
-            text: "Zum Koppeln die Power-Taste am Controller 5–7 s halten, bis die LEDs blinken, dann „Koppeln“ klicken."
+            text: root.tr("pairHint")
           }
 
           Repeater {
@@ -472,7 +478,7 @@ Panel {
               Button {
                 id: pairButton
                 anchors.right: parent.right
-                text: root.nl.pairingId === modelData.id ? "Koppeln …" : "Koppeln"
+                text: root.nl.pairingId === modelData.id ? root.tr("pairing") : root.tr("pair")
                 foreground: root.bar.foreground
                 fontFamily: root.bar.fontFamily
                 fontSize: Style.font.bodySmall
@@ -485,7 +491,8 @@ Panel {
 
           HintText {
             visible: root.ready && root.nl.pairingError !== ""
-            text: root.ready ? root.nl.pairingError : ""
+            text: !root.ready || root.nl.pairingError === "" ? ""
+              : root.tr(root.nl.pairingError === "not-pairing" ? "pairNotReady" : "pairUnreachable")
             color: root.bar.urgent !== undefined ? root.bar.urgent : root.bar.foreground
             opacity: 1
           }
@@ -650,11 +657,11 @@ Panel {
       if (!reachable) return ""
       if (deviceMode === "effect") return info.effect
       if (deviceMode === "white") return info.ct + " K"
-      return "Farbe"
+      return root.tr("color")
     }
     readonly property string subtitle: {
-      if (!reachable) return "nicht erreichbar"
-      if (!isOn) return "aus"
+      if (!reachable) return root.tr("unreachable")
+      if (!isOn) return root.tr("off")
       return info.brightness + " %" + (modeLabel !== "" ? " · " + modeLabel : "")
     }
 
@@ -765,7 +772,7 @@ Panel {
         PanelActionButton {
           id: identifyBtn
           iconText: root.iconIdentify
-          tooltipText: "Gerät blinken lassen"
+          tooltipText: root.tr("identify")
           foreground: root.bar.foreground
           fontFamily: root.bar.fontFamily
           anchors.right: parent.right
@@ -778,9 +785,9 @@ Panel {
       // a value is picked, so a stray click never ends a running effect.
       ButtonGroup {
         options: [
-          { value: "effect", label: "Szene" },
-          { value: "color", label: "Farbe" },
-          { value: "white", label: "Weiß" }
+          { value: "effect", label: root.tr("tabScene") },
+          { value: "color", label: root.tr("tabColor") },
+          { value: "white", label: root.tr("tabWhite") }
         ]
         value: dRow.shownMode
         focusable: false
@@ -801,7 +808,7 @@ Panel {
 
         Button {
           width: parent.width
-          text: (dRow.deviceMode === "effect" && dRow.info ? dRow.info.effect : "Szene wählen")
+          text: (dRow.deviceMode === "effect" && dRow.info ? dRow.info.effect : root.tr("chooseScene"))
                 + "  " + (dRow.effectListOpen ? root.iconCollapse : root.iconExpand)
           foreground: root.bar.foreground
           fontFamily: root.bar.fontFamily
@@ -813,7 +820,7 @@ Panel {
 
         HintText {
           visible: dRow.effects.length === 0
-          text: "Keine Szenen auf dem Gerät gespeichert."
+          text: root.tr("noScenes")
         }
 
         // Inline list instead of a dropdown popup: popups are clipped to the
@@ -971,7 +978,7 @@ Panel {
           width: parent.width
           implicitHeight: ctValue.implicitHeight
 
-          HintText { text: "warm"; width: implicitWidth; anchors.left: parent.left }
+          HintText { text: root.tr("warm"); width: implicitWidth; anchors.left: parent.left }
           HintText {
             id: ctValue
             text: Math.round(ctSlider.liveValue / 100) * 100 + " K"
@@ -979,7 +986,7 @@ Panel {
             opacity: 1
             anchors.horizontalCenter: parent.horizontalCenter
           }
-          HintText { text: "kalt"; width: implicitWidth; anchors.right: parent.right }
+          HintText { text: root.tr("cool"); width: implicitWidth; anchors.right: parent.right }
         }
       }
     }

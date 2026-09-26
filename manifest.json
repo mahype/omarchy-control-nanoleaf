@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "id": "io.github.mahype.omarchy-light-control-nanoleafs",
   "name": "Omarchy Light Control for Nanoleafs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Sven Wagener",
   "license": "MIT",
   "homepage": "https://github.com/mahype/omarchy-light-control-nanoleafs",
-  "description": "Control Nanoleaf light panels (Shapes, Canvas, Lines, Elements) from the Omarchy bar: on/off, brightness, scenes, colors, white tones and profiles. Talks to the devices over the local Nanoleaf Open API; no cloud.",
+  "description": "Control Nanoleaf light panels (Shapes, Canvas, Lines, Elements) from the Omarchy bar: on/off, brightness, scenes, colors, white tones and profiles. Talks to the devices over the local Nanoleaf Open API; no cloud. English and German UI.",
   "kinds": [
     "service",
     "bar-widget"
@@ -26,6 +26,23 @@
       "canvas"
     ],
     "allowMultiple": false,
-    "defaultSection": "right"
+    "defaultSection": "right",
+    "defaults": {
+      "language": "Auto"
+    },
+    "schema": [
+      {
+        "key": "language",
+        "type": "enum",
+        "label": "Language",
+        "options": [
+          "Auto",
+          "English",
+          "Deutsch"
+        ],
+        "defaultValue": "Auto",
+        "description": "Auto follows the system language (German or English)."
+      }
+    ]
   }
 }

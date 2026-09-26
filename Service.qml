@@ -32,7 +32,8 @@ QtObject {
   property var discovered: []
   property bool discovering: false
 
-  // Pairing: id of the device being paired, and the last error text.
+  // Pairing: id of the device being paired, and the last error as a code
+  // ("not-pairing" | "unreachable" | ""). The panel turns codes into text.
   property string pairingId: ""
   property string pairingError: ""
 
@@ -45,8 +46,9 @@ QtObject {
     }
     return ""
   }
-  // Last problem while applying a profile (e.g. a scene deleted in the app).
-  property string profileError: ""
+  // Scenes a profile referred to that no longer exist on the device (e.g.
+  // deleted in the Nanoleaf app), from the last applyProfile().
+  property var missingScenes: []
 
   readonly property bool hasDevices: devices.length > 0
   readonly property bool anyOn: {
@@ -180,7 +182,7 @@ QtObject {
     var p = null
     for (var i = 0; i < profiles.length; i++) if (profiles[i].id === id) p = profiles[i]
     if (!p) return
-    profileError = ""
+    missingScenes = []
     var missing = []
     for (var devId in p.devices) {
       if (!Object.prototype.hasOwnProperty.call(p.devices, devId)) continue
@@ -213,9 +215,7 @@ QtObject {
         _sendState(d, devId, body)
       }
     }
-    if (missing.length > 0) {
-      profileError = "Szene nicht mehr vorhanden: " + missing.join(", ")
-    }
+    missingScenes = missing
   }
 
   function _applyEffectState(d, devId, want) {
@@ -281,9 +281,7 @@ QtObject {
     Api.pair(found, function(ok, status, token) {
       root.pairingId = ""
       if (!ok) {
-        root.pairingError = status === 403
-          ? "Gerät nicht im Kopplungsmodus. Power-Taste 5–7 s halten und erneut versuchen."
-          : "Gerät nicht erreichbar."
+        root.pairingError = status === 403 ? "not-pairing" : "unreachable"
         return
       }
       root._saveConfig(ConfigStore.upsertDevice(root.config, {
