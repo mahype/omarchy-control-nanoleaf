@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Manifest
+        run: bash tests/check-manifest.sh
+
+      - name: Unit tests (JavaScript)
+        run: node --test tests/
+
+      - name: Fake device (Python)
+        run: python3 tests/test_fake_device.py -v
+
+      - name: Syntax
+        run: |
+          python3 -m py_compile tools/fake-nanoleaf.py tests/test_fake_device.py
+          bash -n tests/check-manifest.sh
