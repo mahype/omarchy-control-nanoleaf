@@ -12,7 +12,7 @@ import "I18n.js" as I18n
 // scrolling steps the brightness of all devices that are on.
 Panel {
   id: root
-  moduleName: "io.github.mahype.omarchy-light-control-nanoleafs"
+  moduleName: "io.github.mahype.omarchy-control-nanoleaf"
   ipcTarget: "nanoleaf"
 
   // UI language: widget setting "language" (Auto | English | Deutsch); Auto
@@ -20,7 +20,7 @@ Panel {
   readonly property string lang: I18n.resolve(setting("language", "Auto"), Qt.locale().name)
   function tr(key, arg) { return I18n.t(lang, key, arg) }
 
-  readonly property var nl: bar && bar.shell ? bar.shell.serviceFor("io.github.mahype.omarchy-light-control-nanoleafs") : null
+  readonly property var nl: bar && bar.shell ? bar.shell.serviceFor("io.github.mahype.omarchy-control-nanoleaf") : null
   readonly property bool ready: nl !== null
   readonly property var devices: ready ? nl.devices : []
   readonly property bool singleDevice: devices.length === 1

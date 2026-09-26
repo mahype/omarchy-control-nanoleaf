@@ -2,7 +2,7 @@
 .import "Profiles.js" as Profiles
 
 // Persisted configuration: paired devices (with tokens) and profiles.
-// Lives in ~/.config/omarchy/nanoleaf/config.json inside a 0700 directory.
+// Lives in ~/.config/omarchy-control-nanoleaf/config.json inside a 0700 directory.
 
 var VERSION = 1
 

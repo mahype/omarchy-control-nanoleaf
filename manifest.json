@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "io.github.mahype.omarchy-light-control-nanoleafs",
-  "name": "Omarchy Light Control for Nanoleafs",
+  "id": "io.github.mahype.omarchy-control-nanoleaf",
+  "name": "Omarchy Control for Nanoleaf",
   "version": "0.2.1",
   "author": "Sven Wagener",
   "license": "MIT",
-  "homepage": "https://github.com/mahype/omarchy-light-control-nanoleafs",
+  "homepage": "https://github.com/mahype/omarchy-control-nanoleaf",
   "description": "Control Nanoleaf light panels (Shapes, Canvas, Lines, Elements) from the Omarchy bar: on/off, brightness, scenes, colors, white tones and profiles. Talks to the devices over the local Nanoleaf Open API; no cloud. English and German UI.",
   "kinds": [
     "service",
@@ -16,7 +16,7 @@
     "barWidget": "Panel.qml"
   },
   "barWidget": {
-    "displayName": "Nanoleaf",
+    "displayName": "Control for Nanoleaf",
     "description": "Left click opens the panel, right click toggles all lights, scroll changes brightness.",
     "category": "Home",
     "aliases": [

@@ -1,10 +1,10 @@
-# Omarchy Light Control for Nanoleafs
+# Omarchy Control for Nanoleaf
 
-[![CI](https://github.com/mahype/omarchy-light-control-nanoleafs/actions/workflows/ci.yml/badge.svg)](https://github.com/mahype/omarchy-light-control-nanoleafs/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-light-control-nanoleafs/badges/tests.json)](https://github.com/mahype/omarchy-light-control-nanoleafs/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-light-control-nanoleafs/badges/coverage.json)](#tests)
-[![QML lint](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-light-control-nanoleafs/badges/qml.json)](#tests)
-[![Manifest](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-light-control-nanoleafs/badges/manifest.json)](#tests)
+[![CI](https://github.com/mahype/omarchy-control-nanoleaf/actions/workflows/ci.yml/badge.svg)](https://github.com/mahype/omarchy-control-nanoleaf/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-control-nanoleaf/badges/tests.json)](https://github.com/mahype/omarchy-control-nanoleaf/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-control-nanoleaf/badges/coverage.json)](#tests)
+[![QML lint](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-control-nanoleaf/badges/qml.json)](#tests)
+[![Manifest](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-control-nanoleaf/badges/manifest.json)](#tests)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Omarchy 4](https://img.shields.io/badge/Omarchy-4-black.svg)](https://omarchy.org)
 [![Nanoleaf Open API](https://img.shields.io/badge/Nanoleaf-Open%20API-3eb049.svg)](https://nanoleaf.me)
@@ -15,7 +15,7 @@ Control your Nanoleaf light panels from the Omarchy bar. The plugin talks
 directly to the devices over the local Nanoleaf Open API, with no cloud and no
 account.
 
-![Omarchy Light Control for Nanoleafs](preview.png)
+![Omarchy Control for Nanoleaf](preview.png)
 
 ## Features
 
@@ -62,7 +62,7 @@ There are no other runtime dependencies, and nothing is bundled or downloaded.
 ## Installation
 
 ```bash
-omarchy plugin add https://github.com/mahype/omarchy-light-control-nanoleafs.git --enable
+omarchy plugin add https://github.com/mahype/omarchy-control-nanoleaf.git --enable
 ```
 
 Then pair your device:
@@ -72,13 +72,13 @@ Then pair your device:
    LEDs flash.
 3. Within 30 seconds, click "Pair" next to the device.
 
-To update later, run `omarchy plugin update io.github.mahype.omarchy-light-control-nanoleafs`.
+To update later, run `omarchy plugin update io.github.mahype.omarchy-control-nanoleaf`.
 
 ## Removal
 
 ```bash
-omarchy plugin remove io.github.mahype.omarchy-light-control-nanoleafs
-rm -rf ~/.config/omarchy/nanoleaf   # paired devices, tokens and profiles
+omarchy plugin remove io.github.mahype.omarchy-control-nanoleaf
+rm -rf ~/.config/omarchy-control-nanoleaf   # paired devices, tokens and profiles
 ```
 
 ## Privacy and security
@@ -86,7 +86,7 @@ rm -rf ~/.config/omarchy/nanoleaf   # paired devices, tokens and profiles
 - All traffic stays in your local network. The plugin only talks to the
   Nanoleaf devices you pair, over the Open API on port 16021.
 - Device tokens and profiles are stored in
-  `~/.config/omarchy/nanoleaf/config.json`. The directory is created with mode
+  `~/.config/omarchy-control-nanoleaf/config.json`. The directory is created with mode
   0700.
 - The only external programs it runs are `avahi-browse` (discovery) and
   `install` (to create the config directory). Both are called with argument
@@ -133,9 +133,9 @@ results:
 Link a checkout into Omarchy:
 
 ```bash
-ln -s "$PWD" ~/.config/omarchy/plugins/io.github.mahype.omarchy-light-control-nanoleafs
+ln -s "$PWD" ~/.config/omarchy/plugins/io.github.mahype.omarchy-control-nanoleaf
 omarchy-shell shell rescanPlugins
-omarchy plugin enable io.github.mahype.omarchy-light-control-nanoleafs
+omarchy plugin enable io.github.mahype.omarchy-control-nanoleaf
 ```
 
 Omarchy's file watcher does not follow symlinks, so run

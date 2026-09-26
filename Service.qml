@@ -10,12 +10,12 @@ import "Pending.js" as Pending
 //
 // A `service` is mounted once per session, a `bar-widget` once per monitor, so
 // config, device state and all HTTP traffic live here. The panel reaches it
-// through `bar.shell.serviceFor("io.github.mahype.omarchy-light-control-nanoleafs")` and only
+// through `bar.shell.serviceFor("io.github.mahype.omarchy-control-nanoleaf")` and only
 // calls the action functions below.
 QtObject {
   id: root
 
-  readonly property string configDir: Quickshell.env("HOME") + "/.config/omarchy/nanoleaf"
+  readonly property string configDir: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/omarchy-control-nanoleaf"
   readonly property string configPath: configDir + "/config.json"
 
   property var config: ConfigStore.empty()
