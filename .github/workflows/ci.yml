@@ -21,13 +21,84 @@ jobs:
       - name: Manifest
         run: bash tests/check-manifest.sh
 
-      - name: Unit tests (JavaScript)
-        run: node --test tests/*.test.js
+      - name: JavaScript tests + coverage
+        run: |
+          mkdir -p test-results
+          node --test \
+            --experimental-test-coverage \
+            --test-coverage-exclude='tests/**' \
+            --test-coverage-lines=95 --test-coverage-functions=95 --test-coverage-branches=80 \
+            --test-reporter=spec --test-reporter-destination=stdout \
+            --test-reporter=lcov --test-reporter-destination=test-results/lcov.info \
+            --test-reporter=tap --test-reporter-destination=test-results/results.tap \
+            tests/*.test.js
 
-      - name: Fake device (Python)
-        run: python3 tests/test_fake_device.py -v
+      - name: Fake device
+        run: |
+          python3 tests/test_fake_device.py 2>&1 | tee test-results/python.txt
+          grep -q '^OK' test-results/python.txt
 
       - name: Syntax
         run: |
-          python3 -m py_compile tools/fake-nanoleaf.py tests/test_fake_device.py
-          bash -n tests/check-manifest.sh
+          python3 -m py_compile tools/fake-nanoleaf.py tests/*.py
+          bash -n tests/check-manifest.sh tests/run-all.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+
+  qml:
+    runs-on: ubuntu-latest
+    # Arch ships a current Qt, matching what Omarchy runs.
+    container: archlinux:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install qmllint
+        run: pacman -Syu --noconfirm --needed qt6-declarative python
+
+      - name: QML lint
+        run: |
+          mkdir -p qml-results
+          python3 tests/lint-qml.py | tee qml-results/qml.txt
+
+      - name: QML lint catches a known defect
+        run: |
+          if python3 tests/lint-qml.py tests/fixtures/ShadowedPalette.qml; then
+            echo "lint did not reject tests/fixtures/ShadowedPalette.qml" >&2
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qml-results
+          path: qml-results/
+
+  badges:
+    # Publishes shields.io endpoint data to the "badges" branch.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [test, qml]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Build badge data
+        run: python3 tests/badges.py artifacts badges-out
+
+      - name: Push to badges branch
+        working-directory: badges-out
+        run: |
+          git init -q -b badges
+          git add .
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -qm "Update badges for ${GITHUB_SHA::7}"
+          git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" badges

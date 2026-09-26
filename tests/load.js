@@ -4,6 +4,7 @@
 
 const fs = require("fs")
 const path = require("path")
+const vm = require("vm")
 
 const cache = {}
 
@@ -19,8 +20,12 @@ function load(file) {
   })
   const names = []
   for (const m of src.matchAll(/^(?:function|var)\s+(\w+)/gm)) names.push(m[1])
-  const body = src + "\nreturn {" + names.join(",") + "}"
-  const fn = new Function(...Object.keys(imports), body)
+  // Wrap in a function and compile with the real filename so stack traces
+  // and coverage point at the library file. The wrapper stays on the first
+  // line to keep line numbers intact.
+  const params = Object.keys(imports).join(",")
+  const wrapped = "(function(" + params + ") {" + src + "\nreturn {" + names.join(",") + "}\n})"
+  const fn = vm.runInThisContext(wrapped, { filename: full })
   cache[full] = fn(...Object.values(imports))
   return cache[full]
 }

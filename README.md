@@ -1,6 +1,10 @@
 # Omarchy Light Control for Nanoleafs
 
 [![CI](https://github.com/mahype/omarchy-light-control-nanoleafs/actions/workflows/ci.yml/badge.svg)](https://github.com/mahype/omarchy-light-control-nanoleafs/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-light-control-nanoleafs/badges/tests.json)](https://github.com/mahype/omarchy-light-control-nanoleafs/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-light-control-nanoleafs/badges/coverage.json)](#tests)
+[![QML lint](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-light-control-nanoleafs/badges/qml.json)](#tests)
+[![Manifest](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mahype/omarchy-light-control-nanoleafs/badges/manifest.json)](#tests)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Omarchy 4](https://img.shields.io/badge/Omarchy-4-black.svg)](https://omarchy.org)
 [![Nanoleaf Open API](https://img.shields.io/badge/Nanoleaf-Open%20API-3eb049.svg)](https://nanoleaf.me)
@@ -100,15 +104,30 @@ rm -rf ~/.config/omarchy/nanoleaf   # paired devices, tokens and profiles
 | `I18n.js` | English and German UI strings |
 | `Panel.qml` | Bar icon and popup |
 | `tools/fake-nanoleaf.py` | Simulated Nanoleaf device for testing without hardware |
-| `tests/` | Unit tests, fake-device test and manifest check |
+| `tests/` | Unit tests, fake-device test, QML lint, manifest check |
 
-Run the checks (Node 22+, Python 3, jq):
+Run all checks (Node 22+, Python 3, jq; `qmllint` from `qt6-declarative` for the QML lint):
 
 ```bash
-bash tests/check-manifest.sh
-node --test tests/*.test.js
-python3 tests/test_fake_device.py
+bash tests/run-all.sh
 ```
+
+## Tests
+
+Every push runs these checks in CI, and the badges at the top show their
+results:
+
+- **Tests:** unit tests for the JavaScript modules (discovery parsing, device
+  state, modes, profiles, config, translations, the HTTP layer against a
+  scripted `XMLHttpRequest`) plus an end-to-end test of the simulated device.
+- **Coverage:** line coverage of the JavaScript modules (`NanoleafApi.js`,
+  `Profiles.js`, `ConfigStore.js`, `I18n.js`). CI fails below 95 % lines,
+  95 % functions or 80 % branches. The QML files are covered by the QML lint,
+  not by the coverage number.
+- **QML lint:** `qmllint` on the QML files, failing on real defects such as a
+  property or id that shadows a Qt built-in. A deliberately broken fixture
+  (`tests/fixtures/ShadowedPalette.qml`) proves the lint catches them.
+- **Manifest:** the rules of `omarchy plugin validate` and the marketplace.
 
 Link a checkout into Omarchy:
 

@@ -62,3 +62,12 @@ test("matches tolerates small rounding differences", () => {
   const close = () => ({ info: { ...colorInfo, hue: 122, brightness: 41 }, mode: "color" })
   assert.equal(P.matches(profile, close), true)
 })
+
+test("remove and findByName", () => {
+  let list = P.upsert([], { name: "Abend", devices: { a: { on: false } } })
+  list = P.upsert(list, { name: "Arbeiten", devices: { a: { on: false } } })
+  assert.equal(P.findByName(list, "  arbeiten ").id, "arbeiten")
+  assert.equal(P.findByName(list, "nope"), null)
+  list = P.remove(list, "abend")
+  assert.deepEqual(list.map((p) => p.name), ["Arbeiten"])
+})
