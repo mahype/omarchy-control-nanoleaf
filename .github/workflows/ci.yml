@@ -22,7 +22,7 @@ jobs:
         run: bash tests/check-manifest.sh
 
       - name: Unit tests (JavaScript)
-        run: node --test tests/
+        run: node --test tests/*.test.js
 
       - name: Fake device (Python)
         run: python3 tests/test_fake_device.py -v

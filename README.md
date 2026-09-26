@@ -103,7 +103,7 @@ Run the checks (Node 22+, Python 3, jq):
 
 ```bash
 bash tests/check-manifest.sh
-node --test tests/
+node --test tests/*.test.js
 python3 tests/test_fake_device.py
 ```
 
